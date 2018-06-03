@@ -55,7 +55,7 @@ server.key: intermediate/certs/intermediate.cert.pem
 
 client.key: intermediate/certs/intermediate.cert.pem
 	(cd intermediate && openssl genrsa -out private/client.key 2048)
-	(cd intermediate && openssl req -batch -config openssl.cnf -new -key private/client.key -subj "/C=CA/ST=Edmonton/O=Bob Beck/OU=LibTLS Tutorial Client Certs/CN=localhost" -out csr/client.pem)
+	(cd intermediate && openssl req -batch -config openssl.cnf -new -key private/client.key -subj "/emailAddress=beck@openbsd.org/C=CA/ST=Edmonton/O=Bob Beck/OU=LibTLS Tutorial Client Certs/CN=localhost" -out csr/client.pem)
 	openssl ca -batch -config intermediate/openssl.cnf -extensions usr_cert -days 375 -notext -md sha256 -in intermediate/csr/client.pem -out intermediate/certs/client.crt
 	cp intermediate/private/client.key client.key
 	cp intermediate/certs/client.crt client.crt
