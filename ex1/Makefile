@@ -1,4 +1,6 @@
 CFLAGS += -Wall -Werror
+LDLIBS += -ltls -lssl -lcrypto
+
 
 all: client server
 
