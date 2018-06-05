@@ -38,24 +38,27 @@ intermediate/certs/intermediate.cert.pem: root/certs/ca.cert.pem
 	(cd intermediate && openssl req -batch -config openssl.cnf -key private/intermediate.key.pem -new -sha256 -subj "/C=CA/ST=Edmonton/O=Bob Beck/OU=LibTLS Tutorial/CN=Intermediate CA Cert" -out csr/intermediate.csr.pem)
 	openssl ca -batch -config root/openssl.cnf -extensions v3_intermediate_ca -days 3600 -notext -md sha256 -in intermediate/csr/intermediate.csr.pem -out intermediate/certs/intermediate.cert.pem
 
-revoked.key: intermediate/certs/intermediate.cert.pem
+revoked.key: intermediate/certs/intermediate.cert.pem chain.pem
 	(cd intermediate && openssl genrsa -out private/revoked.key 2048)
 	(cd intermediate && openssl req -batch -config openssl.cnf -new -key private/revoked.key -subj "/C=CA/ST=Edmonton/O=Bob Beck/OU=LibTLS Tutorial Revoked Certs/CN=localhost" -out csr/revoked.pem)
 	openssl ca -batch -config intermediate/openssl.cnf -extensions server_cert -days 375 -notext -md sha256 -in intermediate/csr/revoked.pem -out intermediate/certs/revoked.crt
 	openssl ca -batch -config intermediate/openssl.cnf -revoke intermediate/certs/revoked.crt
 	cp intermediate/private/revoked.key revoked.key
 	cp intermediate/certs/revoked.crt revoked.crt
+	cat chain.pem >> revoked.crt
 
-server.key: intermediate/certs/intermediate.cert.pem
+server.key: intermediate/certs/intermediate.cert.pem chain.pem
 	(cd intermediate && openssl genrsa -out private/server.key 2048)
 	(cd intermediate && openssl req -batch -config openssl.cnf -new -key private/server.key -subj "/C=CA/ST=Edmonton/O=Bob Beck/OU=LibTLS Tutorial Server Certs/CN=localhost" -out csr/server.pem)
 	openssl ca -batch -config intermediate/openssl.cnf -extensions server_cert -days 375 -notext -md sha256 -in intermediate/csr/server.pem -out intermediate/certs/server.crt
 	cp intermediate/private/server.key server.key
 	cp intermediate/certs/server.crt server.crt
+	cat chain.pem >> server.crt
 
-client.key: intermediate/certs/intermediate.cert.pem
+client.key: intermediate/certs/intermediate.cert.pem chain.pem
 	(cd intermediate && openssl genrsa -out private/client.key 2048)
 	(cd intermediate && openssl req -batch -config openssl.cnf -new -key private/client.key -subj "/emailAddress=beck@openbsd.org/C=CA/ST=Edmonton/O=Bob Beck/OU=LibTLS Tutorial Client Certs/CN=localhost" -out csr/client.pem)
 	openssl ca -batch -config intermediate/openssl.cnf -extensions usr_cert -days 375 -notext -md sha256 -in intermediate/csr/client.pem -out intermediate/certs/client.crt
 	cp intermediate/private/client.key client.key
 	cp intermediate/certs/client.crt client.crt
+	cat chain.pem >> client.crt
