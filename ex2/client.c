@@ -208,6 +208,8 @@ int main(int argc, char **argv) {
 				pollfd.events = POLLOUT | POLLHUP;
 			}
 			free(line);
+			if (len == -1)
+				break;
 		}
 		if (poll(&pollfd, 1, -1) == -1)
 			err(1, "poll failed");
