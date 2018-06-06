@@ -21,13 +21,15 @@ In a nutshell, libtls is designed to do the common things you do for making TLS 
 
 ### Goals for this tutorial
 
-So if you go through this, what I hope you get out of this is:
+This tutorial is designed for people with some C experience on a posix, BSD like machine with the latest libtls installed. It focuses on changes that are necessary to make an existing program written in C that uses the POSIX sockets api to use TLS over those same connetions.
 
-- A basic review of sockets in C, with read and write and synchonous IO. Do this in ex0
+So if you go through this tutorial, what I hope you get out of it is:
 
-- How to convert a basic client and server program to use tls instead of cleartext in ex1
+- A basic review of sockets in C, with read and write and synchonous IO. Do this in [ex0](ex0)
 
-- How to convert a more advanced client and server using asynchronous io and poll() in ex2
+- How to convert a basic client and server program to use tls instead of cleartext in [ex1](ex1)
+
+- How to convert a more advanced client and server using asynchronous io and poll() in [ex2](ex2)
 
 - Enough libtls knowledge to know where to find more, and extend this into your own work.
 
@@ -40,7 +42,7 @@ we talk about here, and the exercises, use the code contained in this repository
 
 Once you have clonet this repository, Have a look at and review the sample in
 
-- [Exercies 0](ex0)
+- [Exercise 0](ex0)
 
 Get this example to comple and run on your machine, and make sure you can connect
 to the server with the client. Review the basics in there for how sockets are set up
@@ -115,7 +117,7 @@ Finally you should call
 
 - [tls_close] (https://man.openbsd.org/tls_close.3) on a tls context when it is finished. this does not close the underlying file descriptor, so you keep your old code to close the underlying socket when it is done. 
 
-and with that you have enough to do [Exerceise 1](ex1)
+and with that you have enough to do [Exercise 1](ex1)
 
 
 
