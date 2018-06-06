@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <tls.h>
 #include <unistd.h>
 
 
@@ -190,7 +191,8 @@ handle_server(struct pollfd *pfd, struct server *server)
 }
 
 int main(int argc, char **argv) {
-
+	struct tls_config *tls_cfg = NULL;
+        struct tls *tls_ctx = NULL;
 	struct addrinfo hints, *res;
 	int serverfd, error;
 	struct pollfd pollfd;
@@ -207,11 +209,28 @@ int main(int argc, char **argv) {
 		usage();
 	}
 
+        /* now set up TLS */
+        if (tls_init() == -1)
+                errx(1, "unable to initialize TLS");
+        if ((tls_cfg = tls_config_new()) == NULL)
+                errx(1, "unable to allocate TLS config");
+        if (tls_config_set_ca_file(tls_cfg, "../CA/root.pem") == -1)
+                errx(1, "unable to set root CA file");
+
 	if ((serverfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		err(1, "socket failed");
 
 	if (connect(serverfd, res->ai_addr, res->ai_addrlen) == -1)
 		err(1, "connect failed");
+
+	if ((tls_ctx = tls_client()) == NULL)
+                errx(1, "tls client creation failed");
+        if (tls_configure(tls_ctx, tls_cfg) == -1)
+                errx(1, "tls configuration failed (%s)",
+                    tls_error(tls_ctx));
+        if (tls_connect_socket(tls_ctx, serverfd, "localhost") == -1)
+                errx(1, "tls connection failed (%s)",
+                    tls_error(tls_ctx));
 
 	newconn(&pollfd, serverfd, 0);
 	server_init(&server);
