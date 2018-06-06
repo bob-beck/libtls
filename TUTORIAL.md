@@ -33,7 +33,7 @@ So if you go through this tutorial, what I hope you get out of it is:
 
 - Enough libtls knowledge to know where to find more, and extend this into your own work.
 
-### Setup
+# Setup and Review
 
 First of all, to make use of this you want to clone this repository from github. Everything
 we talk about here, and the exercises, use the code contained in this repository.
@@ -57,7 +57,7 @@ The [CA](CA) directory is set up to generate test certificates using the [openss
 - Run "make" in the [CA](CA) directory to generate some test certificates.
 - Make sure you can see the contents of the generated certificates using "openssl x509 -text -in"
 
-### Basic libtls
+# Basic libtls use
 
 libtls programs use a few opaque structures:
 
@@ -112,6 +112,8 @@ tls_read and tls_write:
   - *TLS_WANT_POLLOUT* specifies that the command failed, but needs to be retried using the same arguments, with the underlying descriptor *WRITABLE*
   - Any other negative value indicates a failure.
 - For the synchronous IO case, the typical use pattern is straightforward, and involves repeating the command in a loop as long as it returns TLS_WANT_POLLIN or TLS_WANT_POLLOUT.
+
+### Finishing with a TLS connection
 
 Finally you should call
 
