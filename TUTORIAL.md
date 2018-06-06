@@ -65,10 +65,10 @@ Now you're actually ready make TLS connections.
 If you have a program that already uses TCP sockets, you have a client that connects using [connect](https://man.openbsd.org/connect.2) and a server that uses [accept](https://man.openbsd.org/accept.2) to make or accept connections.
 
 In a client:
-- after you call [connect](https://man.openbsd.org/connect.2), you call [tls_connect_socket](https://man.openbsd.org/tls_connect_socket.3 to associate a tls context to your connected socket
+- after you call [connect](https://man.openbsd.org/connect.2), you call [tls_connect_socket](https://man.openbsd.org/tls_connect_socket.3) to associate a tls context to your connected socket
 
 In a server:
-- after you call [accept](https://man.openbsd.org/accept.2), you call [tls_accept_socket](https://man.openbsd.org/tls_accept_socket.3 to associate a tls context to your accepted socket
+- after you call [accept](https://man.openbsd.org/accept.2), you call [tls_accept_socket](https://man.openbsd.org/tls_accept_socket.3) to associate a tls context to your accepted socket
 
 Finally you may *Optionally* call
 
