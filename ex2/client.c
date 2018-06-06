@@ -67,10 +67,22 @@ server_init(struct server *server)
 	server->state = STATE_NONE;
 }
 
-static void
-server_consume(struct server *server)
+static ssize_t
+server_consume(struct server *server, size_t len)
 {
-	server->readptr = server->nextptr;
+	size_t n = 0;
+
+	while (n < len) {
+		if (server->readptr == server->nextptr)
+			break;
+		server->readptr++;
+		n++;
+	}
+
+	if (debug && n > 0)
+                fprintf(stderr, "server_consume: %ld bytes from buffer\n", n);
+
+        return ((ssize_t)n);
 }
 
 static ssize_t
@@ -177,18 +189,19 @@ handle_server(struct pollfd *pfd, struct server *server)
 		} else if (server->state == STATE_WRITING) {
 			ssize_t w = 0;
 			ssize_t written = 0;
-			len = server_get(server, buf, sizeof(buf));
 			do {
+				len = server_get(server, buf, sizeof(buf));
 				w = write(pfd->fd, buf, len);
 				if (w == -1) {
 					if (errno != EINTR)
 						closeconn(pfd);
 				}
-				else
+				else {
 					written += w;
+					server_consume(server, w);
+				}
 			} while (written < len);
 			if (pfd->fd > 0) {
-				server_consume(server);
 				server->state = STATE_READING;
 				pfd->events = POLLIN | POLLHUP;
 			}
