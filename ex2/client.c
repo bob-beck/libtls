@@ -57,21 +57,35 @@ struct server {
 	int state;
 	unsigned char *readptr, *writeptr, *nextptr;
 	unsigned char buf[BUFLEN];
+	struct tls *ctx;
 };
 
 static struct server server;
 
 static void
-server_init(struct server *server)
+server_init(struct server *server, struct tls *ctx)
 {
 	server->readptr = server->writeptr = server->nextptr = server->buf;
 	server->state = STATE_NONE;
+	server->ctx = ctx;
 }
 
-static void
-server_consume(struct server *server)
+static ssize_t
+server_consume(struct server *server, size_t len)
 {
-	server->readptr = server->nextptr;
+	size_t n = 0;
+
+	while (n < len) {
+		if (server->readptr == server->nextptr)
+			break;
+		server->readptr++;
+		n++;
+	}
+
+	if (debug && n > 0)
+                fprintf(stderr, "server_consume: %ld bytes from buffer\n", n);
+
+        return ((ssize_t)n);
 }
 
 static ssize_t
@@ -155,8 +169,16 @@ handle_server(struct pollfd *pfd, struct server *server)
 		if (server->state == STATE_READING) {
 			ssize_t w = 0;
 			ssize_t written = 0;
-			len = read(pfd->fd, buf, sizeof(buf));
-			if (len > 0) {
+			len = tls_read(server->ctx, buf, sizeof(buf));
+			if (len == TLS_WANT_POLLIN)
+				pfd->events = POLLIN | POLLHUP;
+			else if (len == TLS_WANT_POLLOUT)
+				pfd->events = POLLOUT | POLLHUP;
+			else if (len < 0)
+				err(1, "tls_write: %s", tls_error(server->ctx));
+			else if (len == 0)
+				closeconn(pfd);
+			else {
 				do {
 					w = write(STDOUT_FILENO, buf, len);
 					if (w == -1) {
@@ -171,23 +193,21 @@ handle_server(struct pollfd *pfd, struct server *server)
 					pfd->events = POLLHUP;
 				}
 			}
-			else if (len == 0)
-				closeconn(pfd);
-			else
-				pfd->events = POLLIN | POLLHUP;
 		} else if (server->state == STATE_WRITING) {
-			ssize_t w = 0;
-			ssize_t written = 0;
+			ssize_t ret = 0;
 			len = server_get(server, buf, sizeof(buf));
-			ret = tls_write(ctx, buf, len);
-			if (ret == TLS_WANT_POLLIN)
-				pfd->events = POLLIN;
-			else if (ret == TLS_WANT_POLLOUT)
-				pfd->events = POLLOUT;
-			else if (ret < 0)
-				err(1, "tls_write: %s", tls_error(ctx));
-			if (pfd->fd > 0) {
-				server_consume(server);
+			if (len) {
+				ret = tls_write(server->ctx, buf, len);
+				if (ret == TLS_WANT_POLLIN)
+					pfd->events = POLLIN | POLLHUP;
+				else if (ret == TLS_WANT_POLLOUT)
+					pfd->events = POLLOUT | POLLHUP;
+				else if (ret < 0)
+					err(1, "tls_write: %s", tls_error(server->ctx));
+				else
+					server_consume(server, ret);
+			}
+			if (ret == len) {
 				server->state = STATE_READING;
 				pfd->events = POLLIN | POLLHUP;
 			}
@@ -238,7 +258,7 @@ int main(int argc, char **argv) {
                     tls_error(tls_ctx));
 
 	newconn(&pollfd, serverfd, 0);
-	server_init(&server);
+	server_init(&server, tls_ctx);
 
 	while(1) {
 		if (server.state == STATE_NONE) {
