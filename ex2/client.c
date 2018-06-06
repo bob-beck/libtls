@@ -179,15 +179,13 @@ handle_server(struct pollfd *pfd, struct server *server)
 			ssize_t w = 0;
 			ssize_t written = 0;
 			len = server_get(server, buf, sizeof(buf));
-			do {
-				w = write(pfd->fd, buf, len);
-				if (w == -1) {
-					if (errno != EINTR)
-						closeconn(pfd);
-				}
-				else
-					written += w;
-			} while (written < len);
+			ret = tls_write(ctx, buf, len);
+			if (ret == TLS_WANT_POLLIN)
+				pfd->events = POLLIN;
+			else if (ret == TLS_WANT_POLLOUT)
+				pfd->events = POLLOUT;
+			else if (ret < 0)
+				err(1, "tls_write: %s", tls_error(ctx));
 			if (pfd->fd > 0) {
 				server_consume(server);
 				server->state = STATE_READING;
