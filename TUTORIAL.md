@@ -121,6 +121,37 @@ Finally you should call
 
 and with that you have enough to do [Exercise 1](ex1)
 
+# Certificate Revocaton.
+
+## Certificate revocation sucks and doesn't scale
+
+I've said the obvious thing you should all know. Nevertheless there is often value for it in private deployments. You have two choices:
+
+###CRL Support
+
+For basic certificate revocation, you're basically looking at a CRL file, as published by a CA, in PEM format. libtls supports these by setting one up at config time
+
+- [tls_config_set_crl_file](http://man.openbsd.org/tls_config_set_crl_file.3) can be called to load the crl file during configuraiton. It will be used to check for certificate revocation during the handshake validaition.
+
+###OCSP Stapling
+
+Alternatively, OCSP stapling can and will be validated if present in a provided certificate.
+
+- [tls_config_set_ocsp_staple_file](http://man.openbsd.org/tls_config_set_ocsp_staple_file.3) can be called to staple a pre-fetched, DER encoded OCSP server response to a certifciate for a handshake.
+
+You can *require* presented certificates to include valid OCSP staples by using
+
+[tls_config_ocsp_require_stapling](http://man.openbsd.org/tls_config_ocsp_require_stapling.3).
+
+at which poing any certificate validations that do not include a valid OCSP staple will fail. If you instead want to verify OCSP stapling manually you can use:
+
+- [tls_peer_oscp_response_status](http://man.openbsd.org/tls_peer_ocsp_response_status.3) on a ctx for which the handshake has completed in order to see what the status is reported by the staple, at which point you can decide if you want to continue or not.
+
+You should now know enough to do [Exercise 1r](ex1)
+
+
+
+
 
 
 
