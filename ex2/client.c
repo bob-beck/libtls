@@ -54,7 +54,7 @@ static void usage()
 
 struct server {
 	int state;
-	unsigned char *readptr, *writeptr;
+	unsigned char *readptr, *writeptr, *nextptr;
 	unsigned char buf[BUFLEN];
 };
 
@@ -63,8 +63,14 @@ static struct server server;
 static void
 server_init(struct server *server)
 {
-	server->readptr = server->writeptr = server->buf;
+	server->readptr = server->writeptr = server->nextptr = server->buf;
 	server->state = STATE_NONE;
+}
+
+static void
+server_consume(struct server *server)
+{
+	server->readptr = server->nextptr;
 }
 
 static ssize_t
@@ -79,7 +85,7 @@ server_get(struct server * server, unsigned char *outbuf, size_t outlen)
                 *outbuf++ = *nextptr++;
                 if ((size_t)(nextptr - server->buf) >= sizeof(server->buf))
                         nextptr = server->buf;
-                server->readptr = nextptr;
+		server->nextptr = nextptr;
                 n++;
         }
 
@@ -182,6 +188,7 @@ handle_server(struct pollfd *pfd, struct server *server)
 					written += w;
 			} while (written < len);
 			if (pfd->fd > 0) {
+				server_consume(server);
 				server->state = STATE_READING;
 				pfd->events = POLLIN | POLLHUP;
 			}
