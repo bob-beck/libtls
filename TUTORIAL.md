@@ -102,7 +102,7 @@ Finally you may *Optionally* call
 
 ### Reading and writing from a TLS connection
 
-Sending and recieving of data is done with [tls_read](https://man.openbsd.org/tls_read.3) and [tls_write(https://man.openbsd.org/tls_write.3). They are desigined to be similar in use, and familiar to programmers that have experience with the normal posix [read](https://man.openbsd.org/read.2) and [write](https://man.openbsd.org/write.2) system calls. *HOWEVER* it is important to remember that they are not actually system calls, and behave subtly differently in some important ways.
+Sending and recieving of data is done with [tls_read](https://man.openbsd.org/tls_read.3) and [tls_write](https://man.openbsd.org/tls_write.3). They are desigined to be similar in use, and familiar to programmers that have experience with the normal posix [read](https://man.openbsd.org/read.2) and [write](https://man.openbsd.org/write.2) system calls. *HOWEVER* it is important to remember that they are not actually system calls, and behave subtly differently in some important ways.
 
 tls_read and tls_write:
 
@@ -115,7 +115,7 @@ tls_read and tls_write:
 
 Finally you should call
 
-- [tls_close] (https://man.openbsd.org/tls_close.3) on a tls context when it is finished. this does not close the underlying file descriptor, so you keep your old code to close the underlying socket when it is done. 
+- [tls_close](https://man.openbsd.org/tls_close.3) on a tls context when it is finished. this does not close the underlying file descriptor, so you keep your old code to close the underlying socket when it is done. 
 
 and with that you have enough to do [Exercise 1](ex1)
 
