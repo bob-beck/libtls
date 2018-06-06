@@ -87,6 +87,10 @@ tls_read and tls_write:
   - Any other negative value indicates a failure.
 - For the synchronous IO case, the typical use pattern is straightforward, and involves repeating the command in a loop as long as it returns TLS_WANT_POLLIN or TLS_WANT_POLLOUT.
 
+Finally you should call
+
+- [tls_close] (https://man.openbsd.org/tls_close.3) on a tls context when it is finished. this does not close the underlying file descriptor, so you keep your old code to close the underlying socket when it is done. 
+
 and with that you have enough to do [Exerceise 1](ex1)
 
 
