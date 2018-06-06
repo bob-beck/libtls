@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <tls.h>
 #include <unistd.h>
 
 #define MAX_CONNECTIONS 256
@@ -55,6 +56,7 @@ struct client {
 	int state;
 	unsigned char *readptr, *writeptr, *nextptr;
 	unsigned char buf[BUFLEN];
+	struct tls *ctx;
 };
 
 static struct client clients[MAX_CONNECTIONS];
@@ -62,10 +64,11 @@ static struct pollfd pollfds[MAX_CONNECTIONS];
 static int throttle = 0;
 
 static void
-client_init(struct client *client)
+client_init(struct client *client, struct tls *ctx)
 {
 	client->readptr = client->writeptr = client->nextptr = client->buf;
 	client->state = STATE_READING;
+	client->ctx = ctx;
 }
 
 static ssize_t
@@ -133,8 +136,15 @@ client_put(struct client *client, const unsigned char *inbuf, size_t inlen)
 }
 
 static void
-closeconn (struct pollfd *pfd)
+closeconn (struct pollfd *pfd, struct client *client)
 {
+	int i;
+
+	do {
+		i = tls_close(client->ctx);
+	} while (i == TLS_WANT_POLLIN || i == TLS_WANT_POLLOUT);
+	tls_free(client->ctx);
+
 	close(pfd->fd);
 	pfd->fd = -1;
 	pfd->revents = 0;
@@ -159,43 +169,46 @@ handle_client(struct pollfd *pfd, struct client *client)
 {
 	if ((pfd->revents & (POLLERR | POLLNVAL)))
 		errx(1, "bad fd %d", pfd->fd);
-	if (pfd->revents & POLLHUP)
-		closeconn(pfd);
+	if (pfd->revents & POLLHUP) {
+		closeconn(pfd, client);
+	}
 	else if (pfd->revents & pfd->events) {
 		char buf[BUFLEN];
 		ssize_t len = 0;
 		if (client->state == STATE_READING) {
-			len = read(pfd->fd, buf, sizeof(buf));
-			if (len > 0) {
-				if (client_put(client, buf, len)
-				    != len) {
+			len = tls_read(client->ctx, buf, sizeof(buf));
+			if (len == TLS_WANT_POLLIN)
+				pfd->events = POLLIN | POLLHUP;
+			else if (len == TLS_WANT_POLLOUT)
+				pfd->events = POLLOUT | POLLHUP;
+			else if (len < 0)
+				warn("tls_read: %s", tls_error(client->ctx));
+			else if (len == 0)
+				closeconn(pfd, client);
+			else {
+				if (client_put(client, buf, len) != len) {
 					warnx("client buffer failed");
-					closeconn(pfd);
+					closeconn(pfd, client);
 				} else {
 					client->state=STATE_WRITING;
 					pfd->events = POLLOUT | POLLHUP;
 				}
 			}
-			else if (len == 0)
-				closeconn(pfd);
-			else
-				pfd->events = POLLIN | POLLHUP;
 		} else if (client->state == STATE_WRITING) {
-			ssize_t w = 0;
-			ssize_t written = 0;
-			do {
-				len = client_get(client, buf, sizeof(buf));
-				w = write(pfd->fd, buf, len);
-				if (w == -1) {
-					if (errno != EINTR)
-						closeconn(pfd);
-				}
-				else {
-					written += w;
-					client_consume(client, w);
-				}
-			} while (written < len);
-			if (pfd->fd > 0) {
+			ssize_t ret = 0;
+			len = client_get(client, buf, sizeof(buf));
+			if (len) {
+				ret = tls_write(client->ctx, buf, len);
+				if (ret == TLS_WANT_POLLIN)
+					pfd->events = POLLIN | POLLHUP;
+				else if (ret == TLS_WANT_POLLOUT)
+					pfd->events = POLLOUT | POLLHUP;
+				else if (ret < 0)
+					warn("tls_write: %s", tls_error(client->ctx));
+				else
+					client_consume(client, ret);
+			}
+			if (ret == len) {
 				client->state = STATE_READING;
 				pfd->events = POLLIN | POLLHUP;
 			}
@@ -204,12 +217,30 @@ handle_client(struct pollfd *pfd, struct client *client)
 }
 
 int main(int argc, char **argv) {
-
+        struct tls_config *tls_cfg = NULL;
+        struct tls *tls_ctx = NULL;
+        struct tls *tls_cctx = NULL;
 	struct addrinfo hints, *res;
 	int i, listenfd, error;
 
+
 	if (argc != 3)
 		usage();
+
+        /* now set up TLS */
+
+        if ((tls_cfg = tls_config_new()) == NULL)
+                errx(1, "unable to allocate TLS config");
+        if (tls_config_set_ca_file(tls_cfg, "../CA/root.pem") == -1)
+                errx(1, "unable to set root CA filet");
+        if (tls_config_set_cert_file(tls_cfg, "../CA/server.crt") == -1)
+                errx(1, "unable to set TLS certificate file");
+        if (tls_config_set_key_file(tls_cfg, "../CA/server.key") == -1)
+                errx(1, "unable to set TLS key file");
+        if ((tls_ctx = tls_server()) == NULL)
+                errx(1, "tls server creation failed");
+        if (tls_configure(tls_ctx, tls_cfg) == -1)
+                errx(1, "tls configuration failed (%s)", tls_error(tls_ctx));
 
 	bzero(&hints, sizeof(hints));
 	hints.ai_family = AF_INET;
@@ -258,9 +289,16 @@ int main(int argc, char **argv) {
 			throttle = 1;
 			for (i = 1; fd >= 0 && i < MAX_CONNECTIONS; i++)  {
 				if (pollfds[i].fd == -1) {
-					newconn(&pollfds[i], fd);
-					client_init(&clients[i]);
 					throttle = 0;
+					if (tls_accept_socket(tls_ctx,
+						&tls_cctx, fd) == -1) {
+						warnx("tls accept failed (%s)",
+						    tls_error(tls_ctx));
+						close(fd);
+						break;
+					}
+					newconn(&pollfds[i], fd);
+					client_init(&clients[i], tls_cctx);
 					break;
 				}
 			}
