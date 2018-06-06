@@ -53,7 +53,7 @@ static void usage()
 
 struct client {
 	int state;
-	unsigned char *readptr, *writeptr;
+	unsigned char *readptr, *writeptr, *nextptr;
 	unsigned char buf[BUFLEN];
 };
 
@@ -64,8 +64,26 @@ static int throttle = 0;
 static void
 client_init(struct client *client)
 {
-	client->readptr = client->writeptr = client->buf;
+	client->readptr = client->writeptr = client->nextptr = client->buf;
 	client->state = STATE_READING;
+}
+
+static ssize_t
+client_consume(struct client *client, size_t len)
+{
+	size_t n = 0;
+
+	while (n < len) {
+		if (client->readptr == client->nextptr)
+			break;
+		client->readptr++;
+		n++;
+	}
+
+	if (debug && n > 0)
+                fprintf(stderr, "client_consume: %ld bytes from buffer\n", n);
+
+        return ((ssize_t)n);
 }
 
 static ssize_t
@@ -80,7 +98,7 @@ client_get(struct client * client, unsigned char *outbuf, size_t outlen)
                 *outbuf++ = *nextptr++;
                 if ((size_t)(nextptr - client->buf) >= sizeof(client->buf))
                         nextptr = client->buf;
-                client->readptr = nextptr;
+                client->nextptr = nextptr;
                 n++;
         }
 
@@ -165,15 +183,17 @@ handle_client(struct pollfd *pfd, struct client *client)
 		} else if (client->state == STATE_WRITING) {
 			ssize_t w = 0;
 			ssize_t written = 0;
-			len = client_get(client, buf, sizeof(buf));
 			do {
+				len = client_get(client, buf, sizeof(buf));
 				w = write(pfd->fd, buf, len);
 				if (w == -1) {
 					if (errno != EINTR)
 						closeconn(pfd);
 				}
-				else
+				else {
 					written += w;
+					client_consume(client, w);
+				}
 			} while (written < len);
 			if (pfd->fd > 0) {
 				client->state = STATE_READING;
