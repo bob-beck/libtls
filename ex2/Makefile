@@ -1,6 +1,6 @@
 CFLAGS += -Wall -Werror
 
-all: echo
+all: echo client
 
 clean:
-	/bin/rm -f echo *.o
+	/bin/rm -f echo client *.o
