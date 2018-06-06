@@ -43,6 +43,7 @@ revoked.key: intermediate/certs/intermediate.cert.pem chain.pem
 	(cd intermediate && openssl req -batch -config openssl.cnf -new -key private/revoked.key -subj "/C=CA/ST=Edmonton/O=Bob Beck/OU=LibTLS Tutorial Revoked Certs/CN=localhost" -out csr/revoked.pem)
 	openssl ca -batch -config intermediate/openssl.cnf -extensions server_cert -days 375 -notext -md sha256 -in intermediate/csr/revoked.pem -out intermediate/certs/revoked.crt
 	openssl ca -batch -config intermediate/openssl.cnf -revoke intermediate/certs/revoked.crt
+	openssl ca -config intermediate/openssl.cnf  -gencrl -out intermediate/crl/intermediate.crl.pem
 	cp intermediate/private/revoked.key revoked.key
 	cp intermediate/certs/revoked.crt revoked.crt
 	cat chain.pem >> revoked.crt
