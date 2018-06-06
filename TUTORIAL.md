@@ -31,6 +31,30 @@ So if you go through this, what I hope you get out of this is:
 
 - Enough libtls knowledge to know where to find more, and extend this into your own work.
 
+### Setup
+
+First of all, to make use of this you want to clone this repository from github. Everything
+we talk about here, and the exercises, use the code contained in this repository.
+
+### First review basic TCP sockets in C, and read and write
+
+Once you have clonet this repository, Have a look at and review the sample in
+
+- [Exercies 0](ex0)
+
+Get this example to comple and run on your machine, and make sure you can connect
+to the server with the client. Review the basics in there for how sockets are set up
+and connnected. You will later on be modifying this program to use TLS.
+
+### TLS uses X509 certificates
+
+The side effect of this is that in order for us to do anything useful with TLS, we need the ability to make certificates to work with. Recall from abouve that libtls does *NOT* implement functionaly for being your own certificate authority. Sadly this means, we need some common ground here.
+
+The [CA](CA) directory is set up to generate test certificates using the [openssl](https://man.openbsd.org/openssl.1) command to implement a basic CA to sign certificates.
+
+- Run "make" in the [CA](CA) directory to generate some test certificates.
+- Make sure you can see the contents of the generated certificates using "openssl x509 -text -in"
+
 ### Basic libtls
 
 libtls programs use a few opaque structures:
