@@ -1,8 +1,8 @@
 #!/bin/sh
 
-cert=server.crt
+cert=$1
 chain=chain.pem
-out=server-ocsp.der
+out=${1}-ocsp.der
 
 serial=`openssl x509 -noout -serial -in ${cert} | sed 's/serial=//'`
 ocsp_uri=`openssl x509 -noout -ocsp_uri -in ${cert}`
