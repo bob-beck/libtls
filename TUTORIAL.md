@@ -37,7 +37,7 @@ So if you go through this tutorial, what I hope you get out of it is:
 
 - Enough libtls knowledge to know where to find more, and extend this into your own work.
 
-This tutorial is far from exhastive - it's meant to get your feet truly wet.
+This tutorial is far from exhaustive - it is only meant to get your feet good and wet.
 
 # Setup and Review
 
