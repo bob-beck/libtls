@@ -104,14 +104,13 @@ Finally you may *Optionally* call
 
 Sending and recieving of data is done with [tls_read](https://man.openbsd.org/tls_read.3) and [tls_write](https://man.openbsd.org/tls_write.3). They are desigined to be similar in use, and familiar to programmers that have experience with the normal posix [read](https://man.openbsd.org/read.2) and [write](https://man.openbsd.org/write.2) system calls. *HOWEVER* it is important to remember that they are not actually system calls, and behave subtly differently in some important ways.
 
-tls_read and tls_write:
+tls_read and tls_write (and tls_handshake):
 
 - Actually have a really good [man page](https://man.openbsd.org/tls_read.3) that gives details on how to use them in a number of situations.
   - Successful reads and writes may only write part of the data. You get told how much was read or written, just like with read and write (unlike OpenSSL)
-  - *TLS_WANT_POLLIN* specifies that the command failed, but needs to be retried using the same arguments, with the underlying descriptor *READABLE*
-  - *TLS_WANT_POLLOUT* specifies that the command failed, but needs to be retried using the same arguments, with the underlying descriptor *WRITABLE*
-  - Any other negative value indicates a failure.
 - For the synchronous IO case, the typical use pattern is straightforward, and involves repeating the command in a loop as long as it returns TLS_WANT_POLLIN or TLS_WANT_POLLOUT.
+- -1 return indicates a failure.
+
 
 ### Finishing with a TLS connection
 
@@ -119,7 +118,40 @@ Finally you should call
 
 - [tls_close](https://man.openbsd.org/tls_close.3) on a tls context when it is finished. this does not close the underlying file descriptor, so you keep your old code to close the underlying socket when it is done. 
 
-and with that you have enough to do [Exercise 1](ex1)
+and with that you have enough to do [Exercise 1a](ex1). Stop after the first part, and we'll
+continue below.
+
+# Certificate information and Client Validation
+
+## Client Validation
+
+A conventional web browser style TLS connction involves and anonymous client, connecting to a server that identifies itself with a certificate. Client validation can be used by the server to require the client to present and validate a certificate.
+
+- [tls_config_verify_client](https://man.openbsd.org/tls_config_verify_client.3) when used on a server will require the client to present a valid certificate.
+
+- [tls_config_verify_client_optional](https://man.openbsd.org/tls_config_verify_client_optional.3) when used on a server will validate a client certificate if one is presented, but allow the client to connect anonymously
+
+## Further certificate inspection
+
+Libtls provides a number of funcitons to retrieve information from the certificate and session
+after the handhshake completes.
+
+The basics include:
+
+- [tls_conn_version](http://man.openbsd.org/tls_conn_version.3)
+- [tls_conn_cipher](http://man.openbsd.org/tls_conn_cipher.3)
+- [tls_peer_cert_contains_name](http://man.openbsd.org/tls_peer_cert_contains_name.3)
+- [tls_peer_cert_subject](http://man.openbsd.org/tls_peer_cert_subject.3)
+- [tls_peer_cert_issuer](http://man.openbsd.org/tls_peer_cert_issuer.3)
+- [tls_peer_cert_notbefore](http://man.openbsd.org/tls_peer_cert_notbefore.3)
+- [tls_peer_cert_notafter](http://man.openbsd.org/tls_peer_cert_notafter.3)
+- [tls_peer_cert_hash](http://man.openbsd.org/tls_peer_cert_hash.3)
+
+And many others which you wil find in the man pages - The key thing to remember is that
+after the handshake, you can use any one of these to compare to expected values to make a
+descion about a connection, or log informaiton about it.
+
+You may now proceed to do [Exercise 1b](ex1)
 
 # Certificate Revocaton.
 
@@ -148,6 +180,36 @@ at which poing any certificate validations that do not include a valid OCSP stap
 - [tls_peer_oscp_response_status](http://man.openbsd.org/tls_peer_ocsp_response_status.3) on a ctx for which the handshake has completed in order to see what the status is reported by the staple, at which point you can decide if you want to continue or not.
 
 You should now know enough to do [Exercise 1r](ex1)
+
+# Asyncrhonous IO
+
+libtls is designed to be able to handle ansynchonous io through nonblocking descriptors and an event notificaiton mechnism such as poll (or the various kernel event handlers). We'll look at poll(2) here since it's largely portable.
+
+Ad you may have guessed, TLS_WANT_POLLIN and TLS_WANT_POLLOUT releate directly to poll, and the poll events flags *POLLIN* and POLLOUT*
+
+Let's revisit tls_read and tls_write:
+
+- Pay particular attention to the [man page](https://man.openbsd.org/tls_read.3) Example for asynchonous nonblocking io with [poll](https://man.openbsd.org/poll.2). 
+  - *TLS_WANT_POLLIN* specifies that the command failed, but needs to be retried using the same arguments, once the the underlying descriptor *READABLE*
+  - *TLS_WANT_POLLOUT* specifies that the command failed, but needs to be retried using the same arguments, once the the underlying descriptor *WRITABLE*
+  - Any other negative value indicates a failure.
+
+Unlike the synchronous IO case, where you can simply retry the same operaiton immediately, In the asynchronous, noblocking case you need to wait and use poll to fine out when the descriptor is readable, or writeable again.
+
+This can seem very counterintuitive when you are doing a write operation, but need to set the descriptor to POLLIN to fine out if it is readable before doing the write again.
+
+This occurs because tls_read, tls_write, and tls_handshake are *NOT* system calls, and will not exclusively read or write depending on what is happening at the TLS layer underneath. As an example, you could be doing a handshake automatically during a read or write, or do renegotiation.
+
+Finally you should have enough to proceed onto [Exercise 2](ex2) Exercise 2 is a new program
+for you to convert - an "echo" client and server using poll() on both ends. Your goal here is
+to get as far with this program as you can in the synchonous case in exercise 1a - so he client
+can anonymousely connect to the server, validate the cert and do full tls.
+
+
+
+
+
+
 
 
 

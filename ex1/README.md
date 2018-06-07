@@ -6,7 +6,7 @@ As you may note, what is in here is exactly what you got for the review exercies
 The reason is simple, your task here is to make the client and server here speak
 TLS!
 
-### Exercise 1:
+### Exercise 1a:
 
 For a first step Make the client connect anonymously, and validate the server's certificate.
 
@@ -15,6 +15,17 @@ For a first step Make the client connect anonymously, and validate the server's 
 
 Stop at the point that you get the client talking to the server. Other exercises below
 will build upon this.
+
+### Exercise 1b
+
+As a follow on to 1a, modify your program (or my solution) so the server insists on client
+verification, and the client provides the certificate from ../CA/client.[crt|key]
+
+Try using both optional, and required client validation.
+
+Now modify the client and the server to print out details of each other's certificate
+after the handshake - Make use of the function in report_tls.c if you like, and add
+it to your code. 
 
 ### Exercise 1r
 
