@@ -96,16 +96,22 @@ int main(int argc,  char *argv[])
 		errx(1, "unable to allocate TLS config");
 	if (tls_config_set_ca_file(tls_cfg, "../CA/root.pem") == -1)
 		errx(1, "unable to set root CA filet");
-#if 0
+#if 1
 	if (tls_config_set_cert_file(tls_cfg, "../CA/server.crt") == -1)
 		errx(1, "unable to set TLS certificate file");
 	if (tls_config_set_key_file(tls_cfg, "../CA/server.key") == -1)
 		errx(1, "unable to set TLS key file");
+	if (tls_config_set_ocsp_staple_file(tls_cfg, "../CA/server.crt-ocsp.der") == -1)
+		errx(1, "unable to set OCSP staple file");
 #else
 	if (tls_config_set_cert_file(tls_cfg, "../CA/revoked.crt") == -1)
 		errx(1, "unable to set TLS certificate file");
 	if (tls_config_set_key_file(tls_cfg, "../CA/revoked.key") == -1)
 		errx(1, "unable to set TLS key file");
+	if (tls_config_set_ocsp_staple_file(tls_cfg, "../CA/server.crt-ocsp.der") == -1)
+		errx(1, "unable to set OCSP staple file");
+	if (tls_config_set_ocsp_staple_file(tls_cfg, "../CA/revoked.crt-ocsp.der") == -1)
+		errx(1, "unable to set OCSP staple file");
 #endif
 	if ((tls_ctx = tls_server()) == NULL)
 		errx(1, "tls server creation failed");

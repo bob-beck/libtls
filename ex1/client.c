@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include <tls.h>
 
+extern void report_tls(struct tls * tls_ctx, char * host);
 
 
 static void usage()
@@ -91,8 +92,10 @@ int main(int argc, char *argv[])
 		errx(1, "unable to allocate TLS config");
 	if (tls_config_set_ca_file(tls_cfg, "../CA/root.pem") == -1)
 		errx(1, "unable to set root CA file");
+#if 0
 	if (tls_config_set_crl_file(tls_cfg, "../CA/intermediate/crl/intermediate.crl.pem") == -1)
 		errx(1, "unable to set crl file");
+#endif
 
 	/* ok now get a socket. we don't care where... */
 	if ((sd=socket(AF_INET,SOCK_STREAM,0)) == -1)
@@ -116,6 +119,8 @@ int main(int argc, char *argv[])
 			errx(1, "tls handshake failed (%s)",
 			    tls_error(tls_ctx));
 	} while (i == TLS_WANT_POLLIN || i == TLS_WANT_POLLOUT);
+
+	report_tls(tls_ctx, "localhost");
 
 	/*
 	 * finally, we are connected. find out what magnificent wisdom
