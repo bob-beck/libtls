@@ -14,10 +14,16 @@ What is libtls not good for?
 - Certificate mangling or generation
 - Being your own CA
 - Implementing Kerberos
-- Using a different interface to sockets to talk to sockets.
+- Using a different and interesting interface to sockets or the file system.
+- Replacing malloc and free with wrappers that do not quite the same thing
+- Providing slightly different versions of Posix string handling routines
+- Providing routings to parse http requests.
+- Big Endian AMD64 support
 - etc etc.
 
 In a nutshell, libtls is designed to do the common things you do for making TLS connections easy. It is not designed to be a Swiss army knife of everything possible.
+
+- It just does TLS!
 
 ### Goals for this tutorial
 
