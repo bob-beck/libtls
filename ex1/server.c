@@ -40,6 +40,8 @@
 #include <unistd.h>
 #include <tls.h>
 
+extern void report_tls(struct tls * tls_ctx, char * host);
+
 static void usage()
 {
 	extern char * __progname;
@@ -102,6 +104,11 @@ int main(int argc,  char *argv[])
 		errx(1, "unable to set TLS key file");
 	if ((tls_ctx = tls_server()) == NULL)
 		errx(1, "tls server creation failed");
+#if 0
+	tls_config_verify_client(tls_cfg);
+#else
+	tls_config_verify_client_optional(tls_cfg);
+#endif
 	if (tls_configure(tls_ctx, tls_cfg) == -1)
 		errx(1, "tls configuration failed (%s)", tls_error(tls_ctx));
 
@@ -178,6 +185,18 @@ int main(int argc,  char *argv[])
 						    tls_error(tls_cctx));
 				} while(i == TLS_WANT_POLLIN || i == TLS_WANT_POLLOUT);
 			}
+
+			report_tls(tls_cctx, "localhost");
+
+#if 0
+			if (tls_peer_cert_contains_name(tls_cctx, "localhost")) {
+				warn("I hate localhost - hanging up");
+				tls_close(tls_cctx);
+				tls_free(tls_cctx);
+				close(clientsd);
+				exit(1);
+			}
+#endif
 
 			/*
 			 * write the message to the client, being sure to

@@ -33,6 +33,7 @@
 #include <tls.h>
 #include <unistd.h>
 
+void
 report_tls(struct tls * tls_ctx, char * host)
 {
 	time_t t;
