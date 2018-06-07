@@ -155,17 +155,15 @@ You may now proceed to do [Exercise 1b](ex1)
 
 # Certificate Revocaton.
 
-## Certificate revocation sucks and doesn't scale
+Everyone knows certificate revocation is painful and problematic at scale.  Nevertheless there is often value for it in private deployments. You have two choices:
 
-I've said the obvious thing you should all know. Nevertheless there is often value for it in private deployments. You have two choices:
-
-###CRL Support
+### CRL Support
 
 For basic certificate revocation, you're basically looking at a CRL file, as published by a CA, in PEM format. libtls supports these by setting one up at config time
 
 - [tls_config_set_crl_file](http://man.openbsd.org/tls_config_set_crl_file.3) can be called to load the crl file during configuraiton. It will be used to check for certificate revocation during the handshake validaition.
 
-###OCSP Stapling
+### OCSP Stapling
 
 Alternatively, OCSP stapling can and will be validated if present in a provided certificate.
 
@@ -181,7 +179,7 @@ at which poing any certificate validations that do not include a valid OCSP stap
 
 You should now know enough to do [Exercise 1r](ex1)
 
-# Asyncrhonous IO
+# Asynchronous IO and event driven programming
 
 libtls is designed to be able to handle ansynchonous io through nonblocking descriptors and an event notificaiton mechnism such as poll (or the various kernel event handlers). We'll look at poll(2) here since it's largely portable.
 
@@ -204,6 +202,16 @@ Finally you should have enough to proceed onto [Exercise 2](ex2) Exercise 2 is a
 for you to convert - an "echo" client and server using poll() on both ends. Your goal here is
 to get as far with this program as you can in the synchonous case in exercise 1a - so he client
 can anonymousely connect to the server, validate the cert and do full tls.
+
+#Further Reading
+
+A number of programs in openbsd use libtls, checkout out the source code is often a useful resource
+
+- [nc](http://man.openbsd.org/nc.1 - [Source code for OpenBSD nc](https://github.com/openbsd/src/tree/master/usr.bin/nc)
+- [httpd](http://man.openbsd.org/httpd.1 - [Source code for OpenBSD httpd](https://github.com/openbsd/src/tree/master/usr.sbin/httpd)
+- [acme-client](http://man.openbsd.org/acme-client.1 - [Source code for OpenBSD acme-client](https://github.com/openbsd/src/tree/master/usr.sbin/acme-client)
+- [acme-client](http://man.openbsd.org/ocspcheck.8 - [Source code for OpenBSD ocspcheck](https://github.com/openbsd/src/tree/master/usr.sbin/ocspcheck)
+- [OpenBSD's libtls regression tests] https://github.com/openbsd/src/tree/master/regress/lib/libtls)
 
 
 
