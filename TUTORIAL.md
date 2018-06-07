@@ -203,9 +203,9 @@ for you to convert - an "echo" client and server using poll() on both ends. Your
 to get as far with this program as you can in the synchonous case in exercise 1a - so he client
 can anonymousely connect to the server, validate the cert and do full tls.
 
-#Further Reading
+# Further Reading and Other Resouces
 
-A number of programs in openbsd use libtls, checkout out the source code is often a useful resource
+A number of programs in openbsd use libtls, examining the source code is often a useful resource
 
 - [nc](http://man.openbsd.org/nc.1 - [Source code for OpenBSD nc](https://github.com/openbsd/src/tree/master/usr.bin/nc)
 - [httpd](http://man.openbsd.org/httpd.1 - [Source code for OpenBSD httpd](https://github.com/openbsd/src/tree/master/usr.sbin/httpd)
