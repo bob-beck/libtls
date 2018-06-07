@@ -91,6 +91,8 @@ int main(int argc, char *argv[])
 		errx(1, "unable to allocate TLS config");
 	if (tls_config_set_ca_file(tls_cfg, "../CA/root.pem") == -1)
 		errx(1, "unable to set root CA file");
+	if (tls_config_set_crl_file(tls_cfg, "../CA/intermediate/crl/intermediate.crl.pem") == -1)
+		errx(1, "unable to set crl file");
 
 	/* ok now get a socket. we don't care where... */
 	if ((sd=socket(AF_INET,SOCK_STREAM,0)) == -1)
