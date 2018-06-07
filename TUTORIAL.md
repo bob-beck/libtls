@@ -11,14 +11,16 @@ other C based tls interfaces (especially native OpenSSL) to do "normal" things w
 What is libtls not good for?
 
 - Arbitrary crypto operations.
-- Certificate mangling or generation
-- Being your own CA
-- Implementing Kerberos
+- Certificate mangling or generation.
+- Being your own CA.
+- Implementing Kerberos.
 - Using a different and interesting interface to sockets or the file system.
-- Replacing malloc and free with wrappers that do not quite the same thing
-- Providing slightly different versions of Posix string handling routines
-- Providing routings to parse http requests.
-- Big Endian AMD64 support
+- Replacing malloc and free with wrappers that do not quite the same thing.
+- Providing slightly different versions of Posix string handling routines.
+- Providing routines to parse http requests.
+- A lovingly hand crafted implementaiton of Julien dates.
+- Big Endian AMD64 support.
+- Handling runtime changes to the size of socklen_t.
 - etc etc.
 
 In a nutshell, libtls is designed to do the common things you do for making TLS connections easy. It is not designed to be a Swiss army knife of everything possible.
