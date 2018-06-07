@@ -108,7 +108,7 @@ nsComment = "OpenSSL Generated Client Certificate"
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid,issuer
 keyUsage = critical, nonRepudiation, digitalSignature, keyEncipherment
-authorityInfoAccess = OCSP;URI:http://localhost
+authorityInfoAccess = OCSP;URI:http://localhost:2560
 extendedKeyUsage = clientAuth, emailProtection
 
 [ server_cert ]
@@ -119,7 +119,7 @@ nsComment = "OpenSSL Generated Server Certificate"
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid,issuer:always
 keyUsage = critical, digitalSignature, keyEncipherment
-authorityInfoAccess = OCSP;URI:http://localhost
+authorityInfoAccess = OCSP;URI:http://localhost:2560
 extendedKeyUsage = serverAuth
 
 [ crl_ext ]
