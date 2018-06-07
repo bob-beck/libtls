@@ -25,13 +25,19 @@ This tutorial is designed for people with some C experience on a POSIX, BSD like
 
 So if you go through this tutorial, what I hope you get out of it is:
 
-- A basic review of sockets in C, with read and write and synchronous IO. Do this in [ex0](ex0)
+- A basic review of sockets in C, with read and write and synchronous IO. Do this in [Excercise 0](ex0)
 
-- How to convert a basic client and server program to use tls instead of cleartext in [ex1](ex1)
+- How to convert a basic client and server program to use tls instead of cleartext in [Exercise 1](ex1)
 
-- How to convert a more advanced client and server using asynchronous IO and poll() in [ex2](ex2)
+- How set up for mutual client authenticated tls, and to examine certificate and handshake properties  [Exercise 1b](ex1)
+
+- How to make use of certificate revocation mechanisms such as CRL's and OCSP stapling  [Exercise 1r](ex1)
+
+- How to convert a more advanced client and server using asynchronous IO and poll() in [Exercise 2](ex2)
 
 - Enough libtls knowledge to know where to find more, and extend this into your own work.
+
+This tutorial is far from exhastive - it's meant to get your feet truly wet.
 
 # Setup and Review
 
