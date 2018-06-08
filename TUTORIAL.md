@@ -86,7 +86,7 @@ Typical initialization for a program will initially set up the configuration:
 - Call [tls_config_new](https://man.openbsd.org/tls_config_new.3) to set up a new tls configuration
 - Call [tls_config_set_ca_file](https://man.openbsd.org/tls_config_set_ca_file.3) to add your roots certs
 - Optionally Call [tls_config_set_cert_file](https://man.openbsd.org/tls_config_set_cert_file.3) to add your own certificate - A server will normally do this. Clients may not if they are connecting without client authentication.
-- Optionally Call [tls_config_set_key_file](https://man.openbsd.org/tls_config_set__key_file.3) to add your certificate key - A server will normally do this. Clients may not if they are connecting without client authentication.
+- Optionally Call [tls_config_set_key_file](https://man.openbsd.org/tls_config_set_key_file.3) to add your certificate key - A server will normally do this. Clients may not if they are connecting without client authentication.
 
 Once this is done you have a configuration set up to potentially initiate or receive tls connections. to make use of that configuration you need to
 
