@@ -137,6 +137,13 @@ server_put(struct server *server, const unsigned char *inbuf, size_t inlen)
 static void
 closeconn (struct pollfd *pfd)
 {
+	int i;
+
+	do {
+		i = tls_close(server.ctx);
+	} while (i == TLS_WANT_POLLIN || i == TLS_WANT_POLLOUT);
+	tls_free(server.ctx);
+
 	close(pfd->fd);
 	pfd->fd = -1;
 	pfd->revents = 0;
