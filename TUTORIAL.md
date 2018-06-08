@@ -33,9 +33,9 @@ This tutorial is designed for people with some C experience on a POSIX, BSD like
 
 So if you go through this tutorial, what I hope you get out of it is:
 
-- A basic review of sockets in C, with read and write and synchronous IO. Do this in [Excercise 0](ex0)
+- A basic review of sockets in C, with read and write and synchronous IO. Do this in [Exercise 0](ex0)
 
-- How to convert a basic client and server program to use tls instead of cleartext in [Exercise 1](ex1)
+- How to convert a basic client and server program to use tls instead of cleartext in [Exercise 1a](ex1)
 
 - How set up for mutual client authenticated tls, and to examine certificate and handshake properties  [Exercise 1b](ex1)
 
