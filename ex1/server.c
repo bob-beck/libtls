@@ -57,7 +57,8 @@ int main(int argc,  char *argv[])
 	struct sockaddr_in sockname, client;
 	char buffer[80], *ep;
 	struct sigaction sa;
-	int clientlen, sd;
+	int sd;
+	socklen_t clientlen;
 	u_short port;
 	pid_t pid;
 	u_long p;
