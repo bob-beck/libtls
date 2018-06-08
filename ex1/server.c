@@ -192,13 +192,13 @@ int main(int argc,  char *argv[])
 				if (w == TLS_WANT_POLLIN || w == TLS_WANT_POLLOUT)
 					continue;
 				if (w < 0)
-					errx(1, "tls_write failed (%s)", tls_error(tls_ctx));
+					errx(1, "tls_write failed (%s)", tls_error(tls_cctx));
 				else
 					written += w;
 			}
 			i = 0;
 			do {
-				i = tls_close(tls_ctx);
+				i = tls_close(tls_cctx);
 			} while(i == TLS_WANT_POLLIN || i == TLS_WANT_POLLOUT);
 
 			close(clientsd);
