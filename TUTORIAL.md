@@ -139,7 +139,7 @@ continue below.
 
 ## Client Validation
 
-A conventional web browser style TLS connection involves and anonymous client, connecting to a server that identifies itself with a certificate. Client validation can be used by the server to require the client to present and validate a certificate.
+A conventional web browser style TLS connection involves an anonymous client, connecting to a server that identifies itself with a certificate. Client validation can be used by the server to require the client to present and validate a certificate.
 
 - [tls_config_verify_client](https://man.openbsd.org/tls_config_verify_client.3) when used on a server will require the client to present a valid certificate.
 
