@@ -1,7 +1,7 @@
 all: root.pem chain.pem intermediate/certs/ocsp-localhost.pem revoked.key server.key client.key
 
 clean:
-	/bin/rm -rf root intermediate root.pem chain.pem *.key *.crt
+	/bin/rm -rf root intermediate root.pem chain.pem *.key *.crt *.der
 
 intermediate/certs/ocsp-localhost.pem: intermediate/certs/intermediate.cert.pem
 	(cd intermediate && openssl genrsa -out private/ocsp-localhost.key.pem 4096)
