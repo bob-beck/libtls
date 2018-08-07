@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 		usage();
 
         p = strtoul(argv[2], &ep, 10);
-        if (*argv[1] == '\0' || *ep != '\0') {
+        if (*argv[2] == '\0' || *ep != '\0') {
 		/* parameter wasn't a number, or was empty */
 		fprintf(stderr, "%s - not a number\n", argv[2]);
 		usage();
