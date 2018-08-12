@@ -222,7 +222,7 @@ can anonymously connect to the server, validate the cert and do full tls.
 A number of programs in OpenBSD use libtls, examining the source code is often a useful resource
 
 - [nc](http://man.openbsd.org/nc.1) - [Source code for OpenBSD nc](https://github.com/openbsd/src/tree/master/usr.bin/nc)
-- [httpd](http://man.openbsd.org/httpd.1) - [Source code for OpenBSD httpd](https://github.com/openbsd/src/tree/master/usr.sbin/httpd)
+- [httpd](http://man.openbsd.org/httpd.8) - [Source code for OpenBSD httpd](https://github.com/openbsd/src/tree/master/usr.sbin/httpd)
 - [acme-client](http://man.openbsd.org/acme-client.1) - [Source code for OpenBSD acme-client](https://github.com/openbsd/src/tree/master/usr.sbin/acme-client)
 - [acme-client](http://man.openbsd.org/ocspcheck.8) - [Source code for OpenBSD ocspcheck](https://github.com/openbsd/src/tree/master/usr.sbin/ocspcheck)
 - [OpenBSD's libtls regression tests](https://github.com/openbsd/src/tree/master/regress/lib/libtls)
