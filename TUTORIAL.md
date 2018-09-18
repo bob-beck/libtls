@@ -1,8 +1,8 @@
 
-# Happy Bob's Libtls tutorial
+# Happy Bob's libtls tutorial
 
 libtls is shipped as part of libressl with OpenBSD. It is designed to be simpler to use than
-other C based tls interfaces (especially native OpenSSL) to do "normal" things with TLS in programs.
+other C based TLS interfaces (especially native OpenSSL) to do "normal" things with TLS in programs.
 
 ### So what's libtls good for?
 
@@ -16,9 +16,9 @@ What is libtls not good for?
 - Implementing Kerberos.
 - Using a different and interesting interface to sockets or the file system.
 - Replacing malloc and free with wrappers that do not quite the same thing.
-- Providing slightly different versions of Posix string handling routines.
+- Providing slightly different versions of POSIX string handling routines.
 - Providing routines to parse http requests.
-- A lovingly hand crafted implementaiton of Julien dates.
+- A lovingly hand crafted implementation of Julian dates.
 - Big Endian AMD64 support.
 - Handling runtime changes to the size of socklen_t.
 - etc etc.
@@ -29,15 +29,15 @@ In a nutshell, libtls is designed to do the common things you do for making TLS 
 
 ### Goals for this tutorial
 
-This tutorial is designed for people with some C experience on a POSIX, BSD like machine with the latest libtls installed. It focuses on changes that are necessary to make an existing program written in C that uses the POSIX sockets api to use TLS over those same connections.
+This tutorial is designed for people with some C experience on a POSIX, BSD like machine with the latest libtls installed. It focuses on changes that are necessary to make an existing program written in C that uses the POSIX sockets API to use TLS over those same connections.
 
 So if you go through this tutorial, what I hope you get out of it is:
 
 - A basic review of sockets in C, with read and write and synchronous IO. Do this in [Exercise 0](ex0)
 
-- How to convert a basic client and server program to use tls instead of cleartext in [Exercise 1a](ex1)
+- How to convert a basic client and server program to use TLS instead of cleartext in [Exercise 1a](ex1)
 
-- How set up for mutual client authenticated tls, and to examine certificate and handshake properties  [Exercise 1b](ex1)
+- How set up for mutual client authenticated TLS, and to examine certificate and handshake properties  [Exercise 1b](ex1)
 
 - How to make use of certificate revocation mechanisms such as CRL's and OCSP stapling  [Exercise 1r](ex1)
 
@@ -75,10 +75,10 @@ The [CA](CA) directory is set up to generate test certificates using the [openss
 
 libtls programs use a few opaque structures:
 
-- *struct tls_config* : a tls configuration, used in turn to configure tls contexts. Configuration includes things like what certificate and key to use as well as validation options. 
-- *struct tls* : a tls ctx, all the context for a tls connection, be it a client or server. 
+- *struct tls_config* : a tls configuration, used in turn to configure tls contexts. Configuration includes things like what certificate and key to use as well as validation options.
+- *struct tls* : a tls ctx, all the context for a tls connection, be it a client or server.
 
-### libtls setup. 
+### libtls setup.
 
 Typical initialization for a program will initially set up the configuration:
 
@@ -88,7 +88,7 @@ Typical initialization for a program will initially set up the configuration:
 - Optionally Call [tls_config_set_cert_file](https://man.openbsd.org/tls_config_set_cert_file.3) to add your own certificate - A server will normally do this. Clients may not if they are connecting without client authentication.
 - Optionally Call [tls_config_set_key_file](https://man.openbsd.org/tls_config_set_key_file.3) to add your certificate key - A server will normally do this. Clients may not if they are connecting without client authentication.
 
-Once this is done you have a configuration set up to potentially initiate or receive tls connections. to make use of that configuration you need to
+Once this is done you have a configuration set up to potentially initiate or receive TLS connections. to make use of that configuration you need to
 
 - Get yourself a tls context using either
   - [tls_server](https://man.openbsd.org/tls_server.3) to set up a server context
@@ -118,7 +118,7 @@ Finally you may *Optionally* call
 
 Sending and receiving of data is done with [tls_read](https://man.openbsd.org/tls_read.3) and [tls_write](https://man.openbsd.org/tls_write.3). They are designed to be similar in use, and familiar to programmers that have experience with the normal POSIX [read](https://man.openbsd.org/read.2) and [write](https://man.openbsd.org/write.2) system calls. *HOWEVER* it is important to remember that they are not actually system calls, and behave subtly differently in some important ways.
 
-tls_read and tls_write (and tls_handshake):
+TLS_read and TLS_write (and TLS_handshake):
 
 - Actually have a really good [man page](https://man.openbsd.org/tls_read.3) that gives details on how to use them in a number of situations.
   - Successful reads and writes may only write part of the data. You get told how much was read or written, just like with read and write (unlike OpenSSL)
@@ -130,7 +130,7 @@ tls_read and tls_write (and tls_handshake):
 
 Finally you should call
 
-- [tls_close](https://man.openbsd.org/tls_close.3) on a tls context when it is finished. this does not close the underlying file descriptor, so you keep your old code to close the underlying socket when it is done. 
+- [tls_close](https://man.openbsd.org/tls_close.3) on a tls context when it is finished. this does not close the underlying file descriptor, so you keep your old code to close the underlying socket when it is done.
 
 and with that you have enough to do [Exercise 1a](ex1). Stop after the first part, and we'll
 continue below.
@@ -195,36 +195,36 @@ You should now know enough to do [Exercise 1r](ex1)
 
 # Asynchronous IO and event driven programming
 
-libtls is designed to be able to handle asynchronous io through nonblocking descriptors and an event notification mechanism such as poll (or the various kernel event handlers). We'll look at poll(2) here since it's largely portable.
+libtls is designed to be able to handle asynchronous io through non-blocking descriptors and an event notification mechanism such as poll (or the various kernel event handlers). We'll look at poll(2) here since it's largely portable.
 
 Ad you may have guessed, TLS_WANT_POLLIN and TLS_WANT_POLLOUT relate directly to poll, and the poll events flags *POLLIN* and POLLOUT*
 
 Let's revisit tls_read and tls_write:
 
-- Pay particular attention to the [man page](https://man.openbsd.org/tls_read.3) Example for asynchronous nonblocking io with [poll](https://man.openbsd.org/poll.2). 
+- Pay particular attention to the [man page](https://man.openbsd.org/tls_read.3) Example for asynchronous non-blocking io with [poll](https://man.openbsd.org/poll.2).
   - *TLS_WANT_POLLIN* specifies that the command failed, but needs to be retried using the same arguments, once the the underlying descriptor *READABLE*
   - *TLS_WANT_POLLOUT* specifies that the command failed, but needs to be retried using the same arguments, once the the underlying descriptor *WRITEABLE*
   - Any other negative value indicates a failure.
 
-Unlike the synchronous IO case, where you can simply retry the same operation immediately, In the asynchronous, nonblocking case you need to wait and use poll to fine out when the descriptor is readable, or writeable again.
+Unlike the synchronous IO case, where you can simply retry the same operation immediately, In the asynchronous, non-blocking case you need to wait and use poll to fine out when the descriptor is readable, or writeable again.
 
 This can seem very counter-intuitive when you are doing a write operation, but need to set the descriptor to POLLIN to fine out if it is readable before doing the write again.
 
-This occurs because tls_read, tls_write, and tls_handshake are *NOT* system calls, and will not exclusively read or write depending on what is happening at the TLS layer underneath. As an example, you could be doing a handshake automatically during a read or write, or do renegotiation.
+This occurs because tls_read, tls_write, and tls_handshake are *NOT* system calls, and will not exclusively read or write depending on what is happening at the tls layer underneath. As an example, you could be doing a handshake automatically during a read or write, or do renegotiation.
 
 Finally you should have enough to proceed onto [Exercise 2](ex2) Exercise 2 is a new program
 for you to convert - an "echo" client and server using poll() on both ends. Your goal here is
 to get as far with this program as you can in the synchronous case in exercise 1a - so he client
-can anonymously connect to the server, validate the cert and do full tls.
+can anonymously connect to the server, validate the cert and do full TLS.
 
 # Further Reading and Other Resources
 
 A number of programs in OpenBSD use libtls, examining the source code is often a useful resource
 
 - [nc](http://man.openbsd.org/nc.1) - [Source code for OpenBSD nc](https://github.com/openbsd/src/tree/master/usr.bin/nc)
-- [httpd](http://man.openbsd.org/httpd.1) - [Source code for OpenBSD httpd](https://github.com/openbsd/src/tree/master/usr.sbin/httpd)
+- [httpd](http://man.openbsd.org/httpd.8) - [Source code for OpenBSD httpd](https://github.com/openbsd/src/tree/master/usr.sbin/httpd)
 - [acme-client](http://man.openbsd.org/acme-client.1) - [Source code for OpenBSD acme-client](https://github.com/openbsd/src/tree/master/usr.sbin/acme-client)
-- [acme-client](http://man.openbsd.org/ocspcheck.8) - [Source code for OpenBSD ocspcheck](https://github.com/openbsd/src/tree/master/usr.sbin/ocspcheck)
+- [ocspcheck](http://man.openbsd.org/ocspcheck.8) - [Source code for OpenBSD ocspcheck](https://github.com/openbsd/src/tree/master/usr.sbin/ocspcheck)
 - [OpenBSD's libtls regression tests](https://github.com/openbsd/src/tree/master/regress/lib/libtls)
 
 
