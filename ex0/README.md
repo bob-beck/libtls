@@ -7,6 +7,6 @@ The key points to get from this are to remember the flow of how you set up a bas
 
 Compile it, run it, change what the server says, and if you like, make the client send something back.
 
-Key takeaways form this are remembering how read() and write() work on sockets and how we check for
+Key takeaways from this are remembering how read() and write() work on sockets and how we check for
 errors. 
 
